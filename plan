@@ -1,0 +1,360 @@
+# Integrated Medical Management System (IMMS)
+## 7-Phase Development Plan
+
+---
+
+## 📋 Phase 1: Foundation & Infrastructure Setup
+**Duration:** 3-4 days | **Priority:** Critical
+
+### Objectives
+Set up the complete development environment and core infrastructure.
+
+### Tasks
+- [ ] **Project Initialization**
+  - [ ] Initialize Next.js 14 project with App Router
+  - [ ] Configure TypeScript with strict mode
+  - [ ] Set up Tailwind CSS with custom theme
+  - [ ] Install and configure Shadcn/UI components
+
+- [ ] **Supabase Configuration**
+  - [ ] Create Supabase project
+  - [ ] Configure authentication providers (Email/Password)
+  - [ ] Set up environment variables (.env.local)
+  - [ ] Test database connection
+
+- [ ] **Database Schema Implementation**
+  - [ ] Create User Administration tables (patient, doctor, pharmacist, receptionist, lab_assistant, admin, patient_relationships)
+  - [ ] Create Clinical Operations tables (appointment, appointment_queue, notification)
+  - [ ] Create Pharmacy & Inventory tables (medicine, inventory, prescription, prescription_item, dispensing, dispensing_item)
+  - [ ] Create Laboratory tables (lab_report, lab_report_file)
+  - [ ] Create Financial tables (invoice, invoice_item)
+  - [ ] Implement `handle_new_user` trigger for auto-profile creation
+
+- [ ] **Security Foundation**
+  - [ ] Configure Row Level Security (RLS) policies for all tables
+  - [ ] Set up role-based access control (RBAC)
+  - [ ] Create storage buckets for lab report files
+
+### Deliverables
+✓ Working Next.js project with Supabase integration  
+✓ Complete database schema deployed  
+✓ RLS policies active for all tables
+
+---
+
+## 📋 Phase 2: Authentication & Role-Based Access
+**Duration:** 3-4 days | **Priority:** Critical
+
+### Objectives
+Implement complete authentication system with role-based routing.
+
+### Tasks
+- [ ] **Authentication UI**
+  - [ ] Create login page (shared for all roles)
+  - [ ] Create patient registration page
+  - [ ] Create staff login portal (separate entry point)
+  - [ ] Implement forgot password flow
+  - [ ] Add email verification system
+
+- [ ] **Role Detection & Routing**
+  - [ ] Build middleware for role-based route protection
+  - [ ] Create role detection utility functions
+  - [ ] Implement dashboard redirects based on user role:
+    - Patient → `/patient/dashboard`
+    - Doctor → `/doctor/dashboard`
+    - Pharmacist → `/pharmacy/dashboard`
+    - Lab Assistant → `/lab/dashboard`
+    - Receptionist → `/reception/dashboard`
+    - Admin → `/admin/dashboard`
+
+- [ ] **Session Management**
+  - [ ] Configure Supabase auth helpers for Next.js
+  - [ ] Implement persistent sessions
+  - [ ] Add logout functionality across all modules
+
+### Deliverables
+✓ Fully functional login/signup system  
+✓ Role-based dashboard routing  
+✓ Protected routes for each user type
+
+---
+
+## 📋 Phase 3: Patient Module
+**Duration:** 5-6 days | **Priority:** High
+
+### Objectives
+Build the complete patient-facing interface (mobile-responsive web).
+
+### Tasks
+- [ ] **Patient Dashboard**
+  - [ ] Design responsive dashboard layout
+  - [ ] Display upcoming appointments widget
+  - [ ] Display recent prescriptions widget
+  - [ ] Add quick action buttons (Book Appointment, View Lab Reports)
+  - [ ] Implement notification center
+
+- [ ] **Appointment Booking System**
+  - [ ] Create doctor selection interface (with specialization filter)
+  - [ ] Build calendar date picker for available dates
+  - [ ] Implement queue number assignment logic
+  - [ ] Add booking confirmation with email/SMS notification
+  - [ ] Create appointment cancellation flow
+
+- [ ] **Medical History Access**
+  - [ ] Build prescriptions list view with filters
+  - [ ] Create prescription detail page (medicine, dosage, frequency)
+  - [ ] Build lab reports gallery (PDF/Image viewer)
+  - [ ] Create billing history page
+  - [ ] Implement appointment history with full details
+
+- [ ] **Family Account Linking**
+  - [ ] Create link request interface
+  - [ ] Build profile switcher for linked accounts
+  - [ ] Display pending link requests status
+  - [ ] Show dependents' medical history access
+
+### Deliverables
+✓ Complete patient web portal  
+✓ Functional appointment booking  
+✓ Medical history viewing  
+✓ Family linking capability
+
+---
+
+## 📋 Phase 4: Clinical Module (Doctor)
+**Duration:** 6-7 days | **Priority:** High
+
+### Objectives
+Build the comprehensive doctor dashboard and clinical tools.
+
+### Tasks
+- [ ] **Doctor Dashboard**
+  - [ ] Create analytics widgets (Revenue tracker, Patient count)
+  - [ ] Implement daily/weekly/monthly view toggles
+  - [ ] Build today's appointments queue display
+  - [ ] Add calendar view for appointment scheduling
+  - [ ] Show "Current Patient" indicator with queue status
+
+- [ ] **Patient Consultation Interface**
+  - [ ] Create patient summary view (demographics, vitals)
+  - [ ] Build medical history timeline (past appointments, prescriptions, lab results)
+  - [ ] Display linked family members with quick access
+  - [ ] Implement private doctor notes (visible only to doctors)
+
+- [ ] **Prescription Engine**
+  - [ ] Build medicine search with auto-suggest dropdown
+  - [ ] Create dosage selection interface (per medicine defaults)
+  - [ ] Implement frequency picker (Morning-Day-Night pattern)
+  - [ ] Add duration input with auto-quantity calculation
+  - [ ] Build prescription preview and submit
+
+- [ ] **Lab Test Recommendations**
+  - [ ] Create lab test catalog browser
+  - [ ] Build lab test request form
+  - [ ] Implement request tracking status
+
+- [ ] **Appointment Management**
+  - [ ] Build appointment status updater (In-Consultation, Complete)
+  - [ ] Create quick navigation to next patient
+
+### Deliverables
+✓ Doctor dashboard with analytics  
+✓ Prescription writing system  
+✓ Lab test recommendation system  
+✓ Patient history viewer
+
+---
+
+## 📋 Phase 5: Pharmacy & Laboratory Modules
+**Duration:** 5-6 days | **Priority:** High
+
+### Objectives
+Build pharmacy inventory management and lab assistant interfaces.
+
+### Tasks
+- [ ] **Pharmacy Dashboard**
+  - [ ] Create prescription queue viewer (filter by doctor)
+  - [ ] Build prescription detail modal
+  - [ ] Implement medicine dispensing interface:
+    - Select batch/inventory
+    - Edit quantity if needed
+    - Mark as issued (triggers stock deduction)
+  - [ ] Add "Items Unavailable" modification flow
+
+- [ ] **Inventory Management**
+  - [ ] Build medicine catalog browser/search
+  - [ ] Create "Add New Medicine" form
+  - [ ] Build stock management interface:
+    - Add new batches
+    - Update stock levels
+    - Track expiry dates
+  - [ ] Implement low stock alerts
+  - [ ] Create inventory report exports
+
+- [ ] **Laboratory Dashboard**
+  - [ ] Build pending test requests queue
+  - [ ] Create test result upload interface (PDF/Image)
+  - [ ] Implement multi-file upload per test
+  - [ ] Add test status management (Processing → Completed)
+
+- [ ] **Lab Test Management**
+  - [ ] Create "Add New Test Type" form
+  - [ ] Build test catalog with pricing
+  - [ ] Implement test pricing updates
+
+### Deliverables
+✓ Pharmacy prescription processing  
+✓ Inventory management system  
+✓ Lab result upload system  
+✓ Test catalog management
+
+---
+
+## 📋 Phase 6: Reception & Billing Module
+**Duration:** 5-6 days | **Priority:** High
+
+### Objectives
+Build the receptionist/cashier workstation with billing system.
+
+### Tasks
+- [ ] **Reception Dashboard**
+  - [ ] Create comprehensive appointment calendar view
+  - [ ] Build filter by doctor interface
+  - [ ] Implement day/week/month view options
+  - [ ] Add real-time queue status display
+
+- [ ] **Patient Registration**
+  - [ ] Build new patient registration form
+  - [ ] Create patient search functionality
+  - [ ] Implement patient profile editor
+
+- [ ] **Appointment Management**
+  - [ ] Create booking interface (on behalf of patient)
+  - [ ] Build cancellation workflow
+  - [ ] Implement check-in system (Mark as "Arrived")
+  - [ ] Add appointment status tracker
+
+- [ ] **Family Link Verification**
+  - [ ] Build pending link requests queue
+  - [ ] Create approval/rejection interface
+  - [ ] Add verification notes system
+
+- [ ] **Master Billing System**
+  - [ ] Implement automatic bill aggregation:
+    - Doctor fees (from doctor config)
+    - Pharmacy charges (from dispensing_item)
+    - Lab charges (from lab_report)
+    - Service charges
+  - [ ] Build invoice preview
+  - [ ] Create payment processing interface (Cash/Card)
+  - [ ] Generate printable receipt/invoice
+  - [ ] Implement payment status management
+
+### Deliverables
+✓ Complete reception workstation  
+✓ Patient management system  
+✓ Automated billing aggregation  
+✓ Payment processing
+
+---
+
+## 📋 Phase 7: Admin Panel & System Finalization
+**Duration:** 4-5 days | **Priority:** Medium-High
+
+### Objectives
+Build admin controls and finalize system-wide features.
+
+### Tasks
+- [ ] **Admin Dashboard**
+  - [ ] Create user management interface (CRUD for all staff types)
+  - [ ] Build patient account management
+  - [ ] Implement system-wide revenue dashboard
+  - [ ] Add system metrics and statistics
+
+- [ ] **System Logs & Monitoring**
+  - [ ] Implement activity logging
+  - [ ] Build log viewer with filters
+  - [ ] Create audit trail for sensitive actions
+
+- [ ] **Notification System Enhancement**
+  - [ ] Configure email notification templates
+  - [ ] Implement SMS integration (optional)
+  - [ ] Build in-app notification center
+  - [ ] Add notification preferences
+
+- [ ] **End-of-Day Automation**
+  - [ ] Implement EOD appointment status auto-update (Pending → Absent)
+  - [ ] Build daily summary reports
+  - [ ] Create backup scheduling
+
+- [ ] **Final Testing & Polish**
+  - [ ] Cross-browser testing
+  - [ ] Mobile responsiveness verification (Patient module)
+  - [ ] Tablet/Desktop optimization (Staff modules)
+  - [ ] Performance optimization
+  - [ ] Security audit
+
+- [ ] **Documentation & Deployment**
+  - [ ] Write user manuals per role
+  - [ ] Create API documentation
+  - [ ] Set up production environment
+  - [ ] Configure production Supabase instance
+  - [ ] Deploy to Vercel/Netlify
+
+### Deliverables
+✓ Admin management panel  
+✓ System monitoring tools  
+✓ Complete notification system  
+✓ Deployed production application  
+✓ User documentation
+
+---
+
+## 📊 Project Timeline Summary
+
+| Phase | Duration | Focus Area |
+|-------|----------|------------|
+| Phase 1 | 3-4 days | Foundation & Infrastructure |
+| Phase 2 | 3-4 days | Authentication & Access Control |
+| Phase 3 | 5-6 days | Patient Module |
+| Phase 4 | 6-7 days | Clinical Module (Doctor) |
+| Phase 5 | 5-6 days | Pharmacy & Lab Modules |
+| Phase 6 | 5-6 days | Reception & Billing |
+| Phase 7 | 4-5 days | Admin & Finalization |
+
+**Total Estimated Duration:** 31-38 days
+
+---
+
+## 🛠️ Technology Stack Reference
+
+| Category | Technology |
+|----------|------------|
+| Database & Auth | Supabase (PostgreSQL) |
+| Framework | Next.js 14 (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS |
+| UI Components | Shadcn/UI |
+
+---
+
+## ⚠️ Critical Business Rules to Implement
+
+1. **Queue Integrity:** Cancelled appointments keep their queue number (void, not reassigned)
+2. **EOD Auto-Update:** Unmarked appointments become "Absent" at end of day
+3. **Post-Service Billing:** Bill generated at exit, aggregating all charges
+4. **Stock Deduction:** Only when pharmacist marks as "Issued"
+5. **Family Linking:** Requires receptionist approval before access granted
+
+---
+
+## 🎯 Success Metrics
+
+- [ ] All 6 user roles can login and access their dashboards
+- [ ] Patients can book appointments and view medical history
+- [ ] Doctors can write prescriptions and recommend lab tests
+- [ ] Pharmacists can dispense medicines and manage inventory
+- [ ] Lab assistants can upload test results
+- [ ] Receptionists can manage appointments and generate bills
+- [ ] Admins can manage users and view system logs
+- [ ] End-to-end patient flow works seamlessly (Book → Consult → Pharmacy → Lab → Bill)

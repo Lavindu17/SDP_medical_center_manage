@@ -1,0 +1,254 @@
+3.1 Overview
+The system utilizes a relational database management system (RDBMS) hosted on Supabase (PostgreSQL). This choice ensures ACID compliance for critical medical transactions (e.g., billing, inventory deduction) and leverages PostgreSQL’s robust support for complex relationships and JSON types.
+
+3.2 Database Schema Classification
+The database entities are categorized into five core modules to ensure separation of concerns:
+
+User Administration Module (RBAC Implementation)
+
+Clinical Operations Module (Patient Care Flow)
+
+Inventory & Pharmacy Module (Stock Management)
+
+Laboratory Module (Diagnostic Services)
+
+Financial Module (Billing & Revenue)
+
+3.3 Data Dictionary (Detailed Schema)
+A. User Administration Module
+Note: All user tables are linked to Supabase auth.users via the UUID.
+
+1. patient
+
+id (UUID, PK): Links to Auth User.
+
+first_name, last_name (Text): Demographics.
+
+dob (Date): Required for age-related medical checks.
+
+contact_number (Text).
+
+address (Text).
+
+2. staff_users (Roles: Doctor, Pharmacist, Receptionist, Lab Assistant, Admin)
+
+Implementation Note: For normalization, these are often separate tables as per your design.
+
+doctor: id (PK), specialization (Text), slmc_reg_number (Text), consultation_fee (Decimal).
+
+pharmacist: id (PK), license_number (Text).
+
+receptionist: id (PK), desk_id (Text).
+
+lab_assistant: id (PK).
+
+admin: id (PK).
+
+3. patient_relationships (Family Linking)
+
+id (BigInt, PK).
+
+requester_id (UUID, FK -> patient): The user requesting access (e.g., Parent).
+
+target_id (UUID, FK -> patient): The user being accessed (e.g., Child).
+
+relationship (Enum): 'Parent', 'Child', 'Spouse', 'Guardian'.
+
+status (Enum): 'Pending', 'Approved', 'Rejected'.
+
+B. Clinical Operations Module
+4. appointment
+
+id (BigInt, PK).
+
+patient_id (UUID, FK).
+
+doctor_id (UUID, FK).
+
+date (Date).
+
+time_slot (Time).
+
+status (Enum): 'Booked', 'Arrived', 'In_Consultation', 'Pharmacy', 'Lab', 'Completed', 'Cancelled'.
+
+doctor_notes (Text): Private clinical notes.
+
+5. appointment_queue
+
+id (BigInt, PK).
+
+appointment_id (BigInt, FK).
+
+queue_number (Int): Generated strictly for the day.
+
+is_active (Boolean): Used to manage the "Current Number" display.
+
+6. notification
+
+id (BigInt, PK).
+
+user_id (UUID, FK): Receiver.
+
+message (Text).
+
+type (Enum): 'Appointment', 'LabResult', 'System'.
+
+is_read (Boolean).
+
+C. Pharmacy & Inventory Module
+7. medicine (The Catalog)
+
+id (BigInt, PK).
+
+brand_name (Text).
+
+generic_name (Text).
+
+manufacturer (Text).
+
+8. inventory (The Stock)
+
+id (BigInt, PK).
+
+medicine_id (FK).
+
+batch_number (Text).
+
+expiry_date (Date).
+
+stock_level (Int).
+
+unit_price (Decimal).
+
+9. prescription (Doctor's Request)
+
+id (BigInt, PK).
+
+appointment_id (FK).
+
+doctor_id (FK).
+
+created_at (Timestamp).
+
+10. prescription_item
+
+id (BigInt, PK).
+
+prescription_id (FK).
+
+medicine_id (FK).
+
+dosage (Text) (e.g., "5mg").
+
+frequency (Text) (e.g., "1-0-1").
+
+duration_days (Int).
+
+11. dispensing (Pharmacist's Action)
+
+id (BigInt, PK).
+
+prescription_id (FK).
+
+pharmacist_id (FK).
+
+dispensed_at (Timestamp).
+
+12. dispensing_item
+
+id (BigInt, PK).
+
+dispensing_id (FK).
+
+inventory_id (FK): Links to specific batch/stock.
+
+quantity_issued (Int): The actual amount billed.
+
+price_at_issue (Decimal): Freezes price at time of sale.
+
+D. Laboratory Module
+13. lab_report
+
+id (BigInt, PK).
+
+appointment_id (FK).
+
+test_name (Text).
+
+status (Enum): 'Requested', 'Processing', 'Completed'.
+
+price (Decimal).
+
+14. lab_report_file
+
+id (BigInt, PK).
+
+lab_report_id (FK).
+
+file_url (Text): Direct link to Supabase Storage bucket.
+
+file_type (Text): 'PDF', 'JPG'.
+
+E. Financial Module
+15. invoice
+
+id (BigInt, PK).
+
+appointment_id (FK).
+
+total_amount (Decimal).
+
+payment_method (Enum): 'Cash', 'Card'.
+
+payment_status (Enum): 'Pending', 'Paid'.
+
+issued_by (FK -> receptionist).
+
+16. invoice_item
+
+id (BigInt, PK).
+
+invoice_id (FK).
+
+description (Text): e.g., "Doctor Fee", "Amoxicillin x10", "Full Blood Count".
+
+amount (Decimal).
+
+source_ref (Text): Stores origin ID (e.g., "dispensing_item:54").
+
+3.4 Automated Database Logic (Triggers)
+To ensure data integrity between the Authentication layer and the Application layer, a PostgreSQL Trigger is implemented. This prevents "Zombie Users" (users who can log in but have no profile data).
+
+Trigger: handle_new_user
+
+Event: INSERT on auth.users
+
+Action: Automatically creates a row in the patient table (or specific staff table based on metadata).
+
+SQL
+
+-- SQL Implementation of the Trigger (For Report Appendix)
+CREATE FUNCTION public.handle_new_user() 
+RETURNS trigger AS $$
+BEGIN
+  -- Check metadata to determine role
+  IF new.raw_user_meta_data->>'role' = 'patient' THEN
+    INSERT INTO public.patient (id, first_name, email)
+    VALUES (new.id, new.raw_user_meta_data->>'full_name', new.email);
+  END IF;
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+3.5 Security & Access Control
+The system utilizes Supabase Row Level Security (RLS) to enforce privacy at the database engine level:
+
+Patients: Can only SELECT from appointment where patient_id matches their Auth UID.
+
+Doctors: Can SELECT from patient medical history but only UPDATE their own prescription records.
+
+Pharmacists: Can SELECT prescriptions but cannot view Doctor's private doctor_notes.
+

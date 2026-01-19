@@ -1,0 +1,133 @@
+================================================================================
+                    YOUR MANUAL TASKS - IMMS PROJECT
+================================================================================
+
+These are tasks that require manual action in external services/platforms.
+Complete each task and update this file with the results.
+
+================================================================================
+PHASE 1: FOUNDATION SETUP (DO THESE FIRST!)
+================================================================================
+
+[ ] TASK 1: CREATE SUPABASE PROJECT
+    ─────────────────────────────────
+    1. Go to https://supabase.com
+    2. Sign in or create an account
+    3. Click "New Project"
+    4. Fill in:
+       - Project name: "imms" (or your preferred name)
+       - Database password: (save this somewhere safe!)
+       - Region: Choose closest to you
+    5. Wait for project to be created (~2 minutes)
+    
+    WHEN DONE, PASTE YOUR CREDENTIALS BELOW:
+    ─────────────────────────────────
+    Project URL: ___________________________________
+    Anon Public Key: ___________________________________
+    Service Role Key: ___________________________________
+    
+    (Find these in: Project Settings → API)
+
+
+[ ] TASK 2: ENABLE EMAIL AUTH IN SUPABASE
+    ─────────────────────────────────
+    1. Go to Authentication → Providers
+    2. Make sure "Email" is enabled
+    3. Go to Authentication → Email Templates
+    4. (Optional) Customize confirmation email template
+    
+    STATUS: [ ] DONE
+
+
+[ ] TASK 3: CREATE STORAGE BUCKET FOR LAB REPORTS
+    ─────────────────────────────────
+    1. Go to Storage in Supabase dashboard
+    2. Click "New Bucket"
+    3. Name: "lab-reports"
+    4. Make it PUBLIC: No (keep private)
+    5. Click Create
+    
+    STATUS: [ ] DONE
+
+
+[!] TASK 3.5: DEPLOY DATABASE SCHEMA (NEW - DO THIS NOW!)
+    ─────────────────────────────────
+    I have created the schema file at: supabase/schema.sql
+    
+    1. Go to Supabase Dashboard -> SQL Editor
+    2. Click "New Query"
+    3. Copy ALL contents from supabase/schema.sql 
+    4. Paste into the SQL Editor
+    5. Click "Run" (or press Ctrl+Enter)
+    6. Wait for "Success" message
+    
+    This creates 22 tables, enums, indexes, triggers, and RLS policies.
+    
+    STATUS: [ ] DONE
+
+
+================================================================================
+PHASE 2: AUTHENTICATION (AFTER CODE SETUP)
+================================================================================
+
+[ ] TASK 4: CREATE ADMIN USER MANUALLY
+    ─────────────────────────────────
+    After the database is set up, you'll need to create the first admin:
+    1. Go to Authentication → Users in Supabase
+    2. Click "Add User"
+    3. Enter admin email and password
+    4. I will guide you on adding to admin table
+    
+    Admin Email: ___________________________________
+    STATUS: [ ] DONE
+
+
+================================================================================
+PHASE 5: OPTIONAL - SMS NOTIFICATIONS
+================================================================================
+
+[ ] TASK 5: SET UP TWILIO (OPTIONAL)
+    ─────────────────────────────────
+    Only if you want SMS notifications:
+    1. Create account at https://www.twilio.com
+    2. Get a phone number
+    3. Note down credentials:
+    
+    Twilio Account SID: ___________________________________
+    Twilio Auth Token: ___________________________________
+    Twilio Phone Number: ___________________________________
+    
+    STATUS: [ ] DONE / [ ] SKIPPING
+
+
+================================================================================
+PHASE 7: DEPLOYMENT (END OF PROJECT)
+================================================================================
+
+[ ] TASK 6: VERCEL DEPLOYMENT
+    ─────────────────────────────────
+    1. Create account at https://vercel.com
+    2. Connect your GitHub/GitLab repository
+    3. I will help configure environment variables
+    
+    STATUS: [ ] NOT YET
+
+
+================================================================================
+                         PROGRESS TRACKER
+================================================================================
+
+Last Updated: _______________
+
+Phase 1 Tasks: ___/3 completed
+Phase 2 Tasks: ___/1 completed  
+Phase 5 Tasks: ___/1 completed (optional)
+Phase 7 Tasks: ___/1 completed
+
+================================================================================
+NOTES:
+================================================================================
+- Complete Task 1-3 FIRST, then tell me so I can continue with code setup
+- Keep this file updated as you complete tasks
+- Ask me if you're stuck on any step!
+================================================================================
