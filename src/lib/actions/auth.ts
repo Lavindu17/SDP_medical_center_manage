@@ -152,10 +152,20 @@ export async function createStaffUser(
     role: Exclude<UserRole, "patient">,
     profileData: Record<string, unknown>
 ): Promise<AuthResult> {
-    const supabase = await createClient();
+    // Use Admin Client with service role key for admin operations
+    const supabaseAdmin = createAdminClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        {
+            auth: {
+                autoRefreshToken: false,
+                persistSession: false
+            }
+        }
+    );
 
-    // Sign up the user with the service role (bypasses RLS for admin operations)
-    const { data, error } = await supabase.auth.admin.createUser({
+    // Create the user with admin privileges
+    const { data, error } = await supabaseAdmin.auth.admin.createUser({
         email,
         password,
         email_confirm: true,
@@ -182,7 +192,7 @@ export async function createStaffUser(
         admin: "admin",
     };
 
-    const { error: profileError } = await supabase
+    const { error: profileError } = await supabaseAdmin
         .from(tableMap[role])
         .insert({
             id: data.user.id,
@@ -191,6 +201,8 @@ export async function createStaffUser(
         });
 
     if (profileError) {
+        // Attempt to delete the auth user if profile creation fails
+        await supabaseAdmin.auth.admin.deleteUser(data.user.id);
         return { error: `Profile creation failed: ${profileError.message}`, success: false };
     }
 
