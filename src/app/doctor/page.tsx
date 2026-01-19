@@ -1,3 +1,4 @@
+
 import { createClient } from "@/lib/supabase/server";
 import { getAuthUser } from "@/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -97,24 +98,6 @@ export default async function DoctorDashboard() {
                         </div>
                     </CardContent>
                 </Card>
-
-                <Card>
-                    <CardContent className="p-6">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
-                                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p className="text-2xl font-bold text-slate-900">
-                                    Rs. {doctor?.consultation_fee || 0}
-                                </p>
-                                <p className="text-sm text-slate-500">Consultation Fee</p>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
             </div>
 
             {/* Today's Queue */}
@@ -125,7 +108,7 @@ export default async function DoctorDashboard() {
                 <CardContent>
                     {todaysAppointments && todaysAppointments.length > 0 ? (
                         <div className="space-y-3">
-                            {todaysAppointments.map((apt, index) => (
+                            {todaysAppointments.map((apt: any, index: number) => (
                                 <div
                                     key={apt.id}
                                     className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${apt.status === "In_Consultation"
@@ -153,6 +136,7 @@ export default async function DoctorDashboard() {
                                             </p>
                                         </div>
                                     </div>
+
                                     <div className="flex items-center gap-3">
                                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${apt.status === "In_Consultation"
                                                 ? "bg-emerald-100 text-emerald-700"
@@ -178,3 +162,4 @@ export default async function DoctorDashboard() {
         </div>
     );
 }
+
