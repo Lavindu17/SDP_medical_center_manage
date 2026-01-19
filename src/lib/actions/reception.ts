@@ -213,3 +213,68 @@ export async function createInvoice(
     revalidatePath("/reception");
     return { success: true, invoiceId: invoice.id };
 }
+
+/**
+ * Get Pending Family Link Requests
+ */
+export async function getPendingFamilyRequests() {
+    const user = await getAuthUser();
+    if (!user || user.role !== "receptionist") return [];
+
+    const supabase = await createClient();
+
+    const { data } = await supabase
+        .from("patient_relationships")
+        .select(`
+      id,
+      relationship,
+      status,
+      created_at,
+      requester:requester_id (first_name, last_name, email),
+      target:target_id (first_name, last_name, email)
+    `)
+        .eq("status", "Pending")
+        .order("created_at", { ascending: false });
+
+    return data || [];
+}
+
+/**
+ * Approve Family Request
+ */
+export async function approveFamilyRequest(requestId: number) {
+    const user = await getAuthUser();
+    if (!user || user.role !== "receptionist") return { error: "Unauthorized" };
+
+    const supabase = await createClient();
+
+    const { error } = await supabase
+        .from("patient_relationships")
+        .update({ status: "Approved" })
+        .eq("id", requestId);
+
+    if (error) return { error: error.message };
+
+    revalidatePath("/reception");
+    return { success: true };
+}
+
+/**
+ * Reject Family Request
+ */
+export async function rejectFamilyRequest(requestId: number) {
+    const user = await getAuthUser();
+    if (!user || user.role !== "receptionist") return { error: "Unauthorized" };
+
+    const supabase = await createClient();
+
+    const { error } = await supabase
+        .from("patient_relationships")
+        .update({ status: "Rejected" })
+        .eq("id", requestId);
+
+    if (error) return { error: error.message };
+
+    revalidatePath("/reception");
+    return { success: true };
+}

@@ -1,0 +1,122 @@
+# IMMS User Acceptance Testing (UAT) Plan
+
+Run through these scenarios in order to verify the entire system.
+
+## prerequisites
+- Ensure Supabase project is running.
+- Ensure the application is running (`npm run dev`).
+- Open the database dashboard or Table Editor to verify backend changes if needed.
+
+---
+
+## 🧪 Scenario 1: The New Patient Journey
+**Goal**: Verify Registration, Appointment Booking, and Family Linking.
+
+1.  **Register a New Patient (Patient A)**:
+    -   Go to `/login` -> Click "Sign up".
+    -   Create account: `patientA@test.com` / `password`.
+    -   **Expected**: Redirected to Patient Dashboard. Profile created in `patient` table.
+
+2.  **Book an Appointment**:
+    -   Click "Book Appointment".
+    -   Select a Specialization (e.g., "General Medicine").
+    -   Choose a Doctor and a Date.
+    -   Confirm Booking.
+    -   **Expected**: Success message. Ticket # displayed. Appearance in "Upcoming Appointments".
+
+3.  **Family Linking (Request)**:
+    -   Register another user (Patient B) in a different browser/incognito: `patientB@test.com`.
+    -   Log in as **Patient A**.
+    -   Go to "Family Members" -> "Link New Member".
+    -   Enter `patientB@test.com` and Relationship "Child".
+    -   **Expected**: "Request Sent" message. Status in DB `patient_relationships` is 'Pending'.
+
+---
+
+## 🧪 Scenario 2: The Receptionist Gatekeeper
+**Goal**: Verify Queue Management & Linking Approval.
+
+1.  **Log in as Receptionist**:
+    -   Use credentials for a receptionist role (e.g., `reception@imms.com`).
+
+2.  **Approve Family Link**:
+    -   Look at the "Family Requests" card on the dashboard.
+    -   Find the request from Patient A -> Patient B.
+    -   Click **[Approve]**.
+    -   **Expected**: Request disappears from list.
+    -   *Verification*: Log in as Patient A. Patient B should now be visible in the profile switcher.
+
+3.  **Check Queue**:
+    -   See Patient A's appointment in "Today's Appointments".
+    -   Status should be 'Booked'.
+
+---
+
+## 🧪 Scenario 3: The Doctor's Consultation
+**Goal**: Verify Clinical Workflow (Prescription & Labs).
+
+1.  **Log in as Doctor**:
+    -   Use credentials for the booked doctor (e.g., `doctor@imms.com`).
+    -   **Expected**: Patient A appears in "Today's Queue".
+
+2.  **Consultation**:
+    -   Click "Consult" on Patient A.
+    -   **Tabs**: Check "History" tab (should be empty/basic).
+    -   **Diagnosis**: Type "Seasonal Flu".
+    -   **Prescribe**: Search "Panadol", Add Frequency "Twice Daily". Click "Add Medicine".
+    -   **Lab Test**: Select "Full Blood Count". Click "Request Test".
+    -   Click **[End Consultation]**.
+    -   **Expected**: Queue count decreases. Appointment Status -> 'Pharmacy' or 'Lab'.
+
+---
+
+## 🧪 Scenario 4: The Fulfillment Loop
+**Goal**: Verify Pharmacy and Lab operations.
+
+1.  **Pharmacy (Log in as Pharmacist)**:
+    -   Go to `/pharmacy`.
+    -   See Patient A in "Pending Prescriptions".
+    -   Click "Dispense".
+    -   Review items. Click **[Dispense & Issue]**.
+    -   **Expected**: Stock deducted from Inventory. Appointment Status updates.
+
+2.  **Laboratory (Log in as Lab Assistant)**:
+    -   Go to `/lab`.
+    -   See Patient A in "Pending Tests".
+    -   Click "Upload Result".
+    -   Enter Result Value / Fake URL. Click **[Complete]**.
+    -   **Expected**: Status -> 'Completed' (or 'Reception' for billing).
+
+---
+
+## 🧪 Scenario 5: Money Matters (Billing)
+**Goal**: Verify Invoice Generation and Payment.
+
+1.  **Log in as Receptionist**:
+    -   Go to Dashboard.
+    -   Patient A should be in the "Ready for Billing" list (Status: Completed).
+
+2.  **Generate Invoice**:
+    -   Click **[Generate Bill]**.
+    -   **Verification**: Check the Itemized List.
+        -   Is Doctor Fee included?
+        -   Are Medicines (Panadol) charged?
+        -   Is Lab Test (FBC) charged?
+    -   Check the **Grand Total**.
+
+3.  **Payment**:
+    -   Select "Cash".
+    -   Click **[Mark as Paid]**.
+    -   **Expected**: Success screen. Invoice ID generated. Appointment cycle closed.
+
+---
+
+## 🧪 Scenario 6: The Admin Overview
+**Goal**: Verify System Monitoring.
+
+1.  **Log in as Admin**:
+    -   Go to `/admin`.
+    -   **Check Stats**:
+        -   Revenue should now include the bill from Scenario 5.
+        -   Appointment count should reflect today's activity.
+    -   **Users**: Verify Patient A and B are listed.

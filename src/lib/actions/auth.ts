@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
 import { getDashboardPath, getUserRole } from "@/lib/auth";
 import type { UserRole } from "@/types/database";
@@ -81,7 +82,20 @@ export async function signUpPatient(formData: FormData): Promise<AuthResult> {
     }
 
     // Create patient profile
-    const { error: profileError } = await supabase.from("patient").insert({
+    // Create patient profile using Admin Client to bypass RLS
+    // (User might not be logged in yet if email confirmation is enabled, causing RLS failure)
+    const supabaseAdmin = createAdminClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        {
+            auth: {
+                autoRefreshToken: false,
+                persistSession: false
+            }
+        }
+    );
+
+    const { error: profileError } = await supabaseAdmin.from("patient").insert({
         id: data.user.id,
         first_name: firstName,
         last_name: lastName || null,
